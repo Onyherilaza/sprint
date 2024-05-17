@@ -1,18 +1,15 @@
-## Getting Started
+## Les classes Java
 
-Welcome to the VS Code Java world. Here is a guideline to help you get started to write Java code in Visual Studio Code.
+Contenus dans le dossier src, voici les classes et leur fonctionnalités:
+- `FrontController`: cette classe modifier les fonctions suivantes:
+    -`getClassesInSpecificPackage`: prend les classes dans le chemin specifier par init param du fichier xml
+    -`scanner`: appel la fonction précédente et change la liste des controller ainsi que le boolean de vérification
+- `AnnotationController`: l'anotation des controllers
+- `TestController`: une classe qui à l'annotation des controllers
 
-## Folder Structure
+## Les scripts
 
-The workspace contains two folders by default, where:
+Voici les scripts(.bat):
 
-- `src`: the folder to maintain sources
-- `lib`: the folder to maintain dependencies
-
-Meanwhile, the compiled output files will be generated in the `bin` folder by default.
-
-> If you want to customize the folder structure, open `.vscode/settings.json` and update the related settings there.
-
-## Dependency Management
-
-The `JAVA PROJECTS` view allows you to manage your dependencies. More details can be found [here](https://github.com/microsoft/vscode-java-dependency#manage-dependencies).
+-`compilateur`: ceci compile tout les fichiers java dans src et les met dans le repertoire bin
+-`deployement`: ceci deploi le projet framework vers le répertoire webapps de tomcat 
