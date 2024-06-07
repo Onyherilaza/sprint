@@ -11,18 +11,22 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
-
 public class FrontController extends HttpServlet {
 
     protected List<Class<?>> list_controller = new ArrayList<>();
     protected Map<String, Mapping> urlMappings = new HashMap<>();
+    protected Set<String> accessedUrls = new HashSet<>();
 
-    protected void getControllerList(String package_name) throws ClassNotFoundException {
+    protected void getControllerList(String package_name) throws ClassNotFoundException, ServletException {
         String bin_path = "WEB-INF/classes/" + package_name.replace(".", "/");
 
         bin_path = getServletContext().getRealPath(bin_path);
 
         File b = new File(bin_path);
+
+        if (!b.exists() || !b.isDirectory()) {
+            throw new ServletException("Package invalide: " + package_name);
+        }
 
         list_controller.clear();
         
@@ -35,9 +39,11 @@ public class FrontController extends HttpServlet {
 
                 for (Method method : clazz.getMethods()) {
                     if (method.isAnnotationPresent(Get.class)) {
+                        String key = method.getAnnotation(Get.class).value();
+                        if (urlMappings.containsKey(key)) {
+                            throw new ServletException("MISY URL MITOVY: " + key);
+                        }
                         Mapping mapping = new Mapping(clazz.getName(), method.getName());
-                        // String key = "/"+clazz.getSimpleName()+"/"+method.getName();   
-                        String key = method.getAnnotation(Get.class).value();                     
                         urlMappings.put(key, mapping);
                     }
                 }
@@ -67,6 +73,10 @@ public class FrontController extends HttpServlet {
             getControllerList(getServletContext().getInitParameter("controllerPackage"));
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
+            throw new ServletException("Failed to load classes from the specified package", e);
+        } catch (ServletException e) {
+            e.printStackTrace();
+            throw new ServletException("Initialization error: " + e.getMessage(), e);
         }
     }
 
@@ -78,17 +88,21 @@ public class FrontController extends HttpServlet {
         
         try (PrintWriter out = response.getWriter()) {
 
+            // if (accessedUrls.contains(url)) {
+            //     response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            //     out.println("Error: URL deja existant.");
+            //     return;
+            // }
+
+            // accessedUrls.add(url);
+
             Mapping mapping = urlMappings.get(url);
 
             if (mapping != null) {
-                // out.println("<p><strong>URL :</strong> " + url +"</p>");
-                // out.println("<p><strong>Assosier a :</strong> " + mapping+"</p>");
-                //out.println("<p>Contenue de la methode <strong>"+mapping.getMethodName()+"</strong> : "+invoke_Method(mapping.getClassName(), mapping.getMethodName())+"</p>");
-
                 Object returnValue = invoke_Method(mapping.getClassName(), mapping.getMethodName());
 
                 if (returnValue instanceof String) {
-                    out.println("<p>Contenue de la methode <strong>"+mapping.getMethodName()+"</strong> : "+(String) returnValue+"</p>");
+                    out.println("<p>Contenue de la methode <strong>" + mapping.getMethodName() + "</strong> : " + (String) returnValue + "</p>");
                 } else if (returnValue instanceof ModelView) {
                     ModelView modelView = (ModelView) returnValue;
                     String viewUrl = modelView.getUrl();
@@ -101,8 +115,11 @@ public class FrontController extends HttpServlet {
                     RequestDispatcher dispatcher = request.getRequestDispatcher(viewUrl);
                     dispatcher.forward(request, response);
                     
+                // } else if (returnValue instanceof Date) {
+                //     out.println("<p>Contenue de la methode <strong>" + mapping.getMethodName() + "</strong> : " + returnValue.toString() + "</p>");
                 } else {
-                    out.println("Type de retour non reconnu");
+                    out.println("Type de retour non reconnu: " + returnValue.getClass().getName());
+
                 }
             } else {
                 out.println("Pas de methode Get associer a l'URL: " + url);
@@ -122,5 +139,4 @@ public class FrontController extends HttpServlet {
             throws ServletException, IOException {
         processRequest(request, response);
     }
-
 }
