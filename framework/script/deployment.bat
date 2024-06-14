@@ -36,7 +36,7 @@ cd /D ..\..\
 
 rem Copie des élements indispensables pour tomcat vers temp
 xcopy "%test%\" "%temp%\WEB-INF\"
-xcopy /E /I /Y "%views%\" "%temp%\WEB-INF\views"
+xcopy /E /I /Y "%views%\" "%temp%\views"
 xcopy /E /I /Y "%lib%\" "%temp%\WEB-INF\lib"
 xcopy /E /I /Y "%bin%\" "%temp%\WEB-INF\classes"
 
