@@ -54,7 +54,7 @@ public class FrontController extends HttpServlet {
         }
     }
 
-    protected Object invoke_Method(HttpServletRequest request, String className, Method method) throws IOException, NoSuchMethodException {
+    protected Object invoke_Method(HttpServletRequest request, String className, Method method) throws IOException, NoSuchMethodException, ServletException {
         Object returnValue = null;
         try {
             Class<?> clazz = Class.forName(className);
@@ -98,11 +98,13 @@ public class FrontController extends HttpServlet {
                     //     args[i] = null;
                     // }
                     
-                    if (paramMap.containsKey(methodParams[i].getName())) {
-                        args[i] = paramMap.get(methodParams[i].getName());
-                    } else {
-                        args[i] = null;
-                    }
+                    // if (paramMap.containsKey(methodParams[i].getName())) {
+                    //     args[i] = paramMap.get(methodParams[i].getName());
+                    // } else {
+                    //     args[i] = null;
+                    // }
+                    throw new ServletException("ETU002541 parametre: \""+ methodParams[i].getName() +"\" de \""+method.getName()+"\" ne contient pas de param");
+                    
                 }
             }
     

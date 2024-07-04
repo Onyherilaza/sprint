@@ -43,4 +43,14 @@ public class Controller1 {
         mv.addObject("employe", employe);
         return mv;
     }
+    @Get(value = "/avec_de_param")
+    public String avec_de_param(@Param(name = "message")String message) {
+        return message;
+    }
+
+
+    @Get(value = "/pas_de_param")
+    public String pas_de_param(String message) {
+        return message;
+    }
 }
